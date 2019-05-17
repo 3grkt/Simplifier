@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/integration"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:amqp="http://www.springframework.org/schema/integration/amqp"
+	xmlns:jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:mail="http://www.springframework.org/schema/integration/mail"
+	xmlns:stream="http://www.springframework.org/schema/integration/stream"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration.xsd
+ 			http://www.springframework.org/schema/integration/mail
+    		http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd
+ 			http://www.springframework.org/schema/integration/amqp 
+ 				http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
+    		http://www.springframework.org/schema/integration/jms
+			http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd
+			http://www.springframework.org/schema/integration/stream
+			http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd">
+
+ 
+     
+ 
+	
+
+  <!-- "ref" refers to custom Router:ordeRouter "method" is the message channel -->
+ 	
+
+	
+
+
+
+	
+	
+
+    
+    
+
+<!-- bridge between Direct channel &  JMS outbound channel-->
+    
+    
+ 
+	
+	
+
+	<!--  -->
+
+
+	<channel id="fromAmqpBooking" />
+	<amqp:inbound-channel-adapter channel="fromAmqpBooking"
+		queue-names="bookingQueue" connection-factory="amqpConnectionFactory" />
+
+    
+ 	
+
+<!-- input order && transformedOrder need to go to JMS -->
+
+	
+	
+	
+	
+	
+	<router input-channel="fromAmqpBooking" method="fromAmqpBooking"
+		ref="bookingRouter">
+	</router>
+	<channel id="supervisorBooking"></channel>
+	<jms:outbound-channel-adapter channel="supervisorBooking"
+		id="jmsoutSupervisor" destination="supervisorQueue">
+	</jms:outbound-channel-adapter>
+	<channel id="adminBooking"></channel>
+	<amqp:outbound-channel-adapter channel="adminBooking"
+		id="amqpOutAdmin" exchange-name="direct" routing-key="booking.key">
+	</amqp:outbound-channel-adapter>
+</beans:beans>
